@@ -866,7 +866,7 @@ export default function DashboardPage() {
                   <div className="mt-6 flex items-start gap-3 p-4 bg-yellow-50 dark:bg-yellow-900/10 rounded-xl border border-yellow-200 dark:border-yellow-900/30 text-yellow-800 dark:text-yellow-400">
                     <Clock className="w-5 h-5 shrink-0 mt-0.5" />
                     <p className="text-sm font-medium leading-relaxed">
-                      Harap segera melengkapi dan mengunggah dokumen persyaratan LKTK Anda sebelum batas waktu berakhir untuk menghindari keterlambatan validasi.
+                      Harap segera melengkapi dan mengunggah dokumen persyaratan E-kinerja Anda sebelum batas waktu berakhir untuk menghindari keterlambatan validasi.
                     </p>
                   </div>
                 </div>
