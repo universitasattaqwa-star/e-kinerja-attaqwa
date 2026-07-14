@@ -469,9 +469,10 @@ export default function DashboardPage() {
                       <td className="border border-black px-3 py-2 text-center">{i + 1}</td>
                       <td className="border border-black px-3 py-2">{docMaster?.kategori || '-'}</td>
                       <td className="border border-black px-3 py-2">
-                        <strong>{docMaster?.nama_dokumen || 'Dokumen LKTK'}</strong>
-                        <div className="text-xs mt-1 break-all text-blue-600 underline">{sub.url_gdrive}</div>
-                      </td>
+  {/* Prioritaskan judul_kustom, jika kosong baru gunakan nama master dokumen */}
+  <strong>{sub.judul_kustom ? sub.judul_kustom : (docMaster?.nama_dokumen || 'Dokumen E-Kinerja')}</strong>
+  <div className="text-xs mt-1 break-all text-blue-600 underline">{sub.url_gdrive}</div>
+</td>
                       <td className="border border-black px-3 py-2 text-center uppercase text-xs font-bold">
                         {sub.status_validasi === 'approved' ? 'Disetujui' : sub.status_validasi === 'rejected' ? 'Ditolak' : 'Pending'}
                       </td>
