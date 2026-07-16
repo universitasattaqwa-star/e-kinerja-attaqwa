@@ -239,11 +239,12 @@ export default function DashboardPage() {
         
       const userJabatanId = jabatanData?.id;
 
-      // Ensure we match legacy string values, new UUIDs, and 'Semua Jabatan'
-      let orQuery = `target_jabatan.eq.${userJabatanName},target_jabatan.eq.Semua Jabatan`;
-      if (userJabatanId) {
-        orQuery = `target_jabatan.eq.${userJabatanId},${orQuery}`;
-      }
+      /// Ensure we match legacy string values, new UUIDs, and 'Semua Jabatan'
+// Tambahkan tanda kutip ganda (\") karena nama jabatan memiliki spasi
+let orQuery = `target_jabatan.eq."${userJabatanName}",target_jabatan.eq."Semua Jabatan"`;
+if (userJabatanId) {
+  orQuery = `target_jabatan.eq."${userJabatanId}",${orQuery}`;
+}
 
       let query = supabase
         .from('document_masters')
