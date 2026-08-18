@@ -176,7 +176,7 @@ export default function ValidasiDokumenView({ isSuperadminView, currentUserId, c
     } finally {
       setDetailLoading(false);
     }
-  }, []);
+  }, [isSuperadminView, currentUserJabatan, selectedPeriodeId]); // Perbaikan dependensi
 
   useEffect(() => {
     setSelectedUserId(null);
@@ -355,11 +355,6 @@ export default function ValidasiDokumenView({ isSuperadminView, currentUserId, c
       return null;
     }
 
-    if (!selectedUser) {
-      setSelectedUserId(null);
-      return null;
-    }
-
     return (
       <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
         <div className="flex items-center justify-between mb-8 bg-white dark:bg-gray-900 p-6 rounded-3xl border border-gray-200 dark:border-gray-800 shadow-sm">
@@ -391,7 +386,8 @@ export default function ValidasiDokumenView({ isSuperadminView, currentUserId, c
 
         {/* Detail View Search & Filter */}
         <div className="flex flex-col md:flex-row gap-4 mb-6 bg-white dark:bg-gray-900 p-4 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm overflow-x-auto print:hidden">
-          {!isSuperadminView && isActivePeriode && selectedItems.length > 0 && (
+          {/* ✨ PERBAIKAN: Hapus larangan Superadmin di tombol persetujuan massal */}
+          {isActivePeriode && selectedItems.length > 0 && (
             <div className="flex items-center gap-2 shrink-0 animate-in fade-in zoom-in duration-300">
               <button
                 onClick={handleBulkApprove}
@@ -467,23 +463,23 @@ export default function ValidasiDokumenView({ isSuperadminView, currentUserId, c
                   <table className="w-full text-left border-collapse text-sm">
                     <thead className="bg-[#024049] text-white">
                       <tr>
-                        {!isSuperadminView && (
-                          <th className="px-4 py-3 font-semibold whitespace-nowrap w-12 text-center print:hidden">
-                            <input 
-                              type="checkbox" 
-                              checked={allVisibleSelected}
-                              onChange={handleSelectAll}
-                              className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
-                            />
-                          </th>
-                        )}
+                        {/* ✨ PERBAIKAN: Munculkan Kolom Checkbox untuk Superadmin juga */}
+                        <th className="px-4 py-3 font-semibold whitespace-nowrap w-12 text-center print:hidden">
+                          <input 
+                            type="checkbox" 
+                            checked={allVisibleSelected}
+                            onChange={handleSelectAll}
+                            className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+                          />
+                        </th>
                         <th className="px-4 py-3 font-semibold whitespace-nowrap">Nama Dokumen</th>
                         <th className="px-4 py-3 font-semibold whitespace-nowrap">Kategori</th>
                         <th className="px-4 py-3 font-semibold whitespace-nowrap">Tipe / Semester</th>
                         <th className="px-4 py-3 font-semibold text-center whitespace-nowrap print:hidden">Link</th>
                         <th className="px-4 py-3 font-semibold text-center whitespace-nowrap">Status</th>
                         <th className="px-4 py-3 font-semibold whitespace-nowrap">Catatan</th>
-                        {!isSuperadminView && <th className="px-4 py-3 font-semibold text-center whitespace-nowrap print:hidden">Aksi</th>}
+                        {/* ✨ PERBAIKAN: Munculkan Kolom Aksi untuk Superadmin juga */}
+                        <th className="px-4 py-3 font-semibold text-center whitespace-nowrap print:hidden">Aksi</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -496,16 +492,15 @@ export default function ValidasiDokumenView({ isSuperadminView, currentUserId, c
 
                           return (
                             <tr key={sub.id} className={`${isEven ? 'bg-white dark:bg-gray-900' : 'bg-gray-50/50 dark:bg-gray-800/30'} hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors`}>
-                              {!isSuperadminView && (
-                                <td className="px-4 py-3 text-center print:hidden">
-                                  <input 
-                                    type="checkbox" 
-                                    checked={selectedItems.includes(sub.id)}
-                                    onChange={() => handleSelectItem(sub.id)}
-                                    className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
-                                  />
-                                </td>
-                              )}
+                              {/* ✨ PERBAIKAN: Checkbox Item untuk Superadmin */}
+                              <td className="px-4 py-3 text-center print:hidden">
+                                <input 
+                                  type="checkbox" 
+                                  checked={selectedItems.includes(sub.id)}
+                                  onChange={() => handleSelectItem(sub.id)}
+                                  className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+                                />
+                              </td>
                               <td className="px-4 py-3 font-medium text-gray-900 dark:text-white max-w-[250px]">
                                 <div className="truncate" title={sub.document_masters?.nama_dokumen}>
                                   {sub.document_masters?.nama_dokumen}
@@ -554,7 +549,8 @@ export default function ValidasiDokumenView({ isSuperadminView, currentUserId, c
                                   <span className="text-gray-400">-</span>
                                 )}
                               </td>
-                              {!isSuperadminView && isActivePeriode && (
+                              {/* ✨ PERBAIKAN: Tombol Approve/Reject akan muncul terlepas dari apakah dia Superadmin atau bukan */}
+                              {isActivePeriode && (
                                 <td className="px-4 py-3 text-center print:hidden">
                                   <div className="flex items-center justify-center gap-1.5">
                                     {isPending ? (
@@ -597,7 +593,7 @@ export default function ValidasiDokumenView({ isSuperadminView, currentUserId, c
                         })
                       ) : (
                         <tr>
-                          <td colSpan={isSuperadminView ? 6 : 8} className="px-4 py-8 text-center text-gray-500 bg-gray-50 dark:bg-gray-800/20">
+                          <td colSpan={8} className="px-4 py-8 text-center text-gray-500 bg-gray-50 dark:bg-gray-800/20">
                             Pencarian dokumen tidak ditemukan.
                           </td>
                         </tr>
