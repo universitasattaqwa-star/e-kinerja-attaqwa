@@ -240,11 +240,10 @@ export default function DashboardPage() {
       const userJabatanId = jabatanData?.id;
 
       /// Ensure we match legacy string values, new UUIDs, and 'Semua Jabatan'
-// Tambahkan tanda kutip ganda (\") karena nama jabatan memiliki spasi
-let orQuery = `target_jabatan.eq."${userJabatanName}",target_jabatan.eq."Semua Jabatan"`;
-if (userJabatanId) {
-  orQuery = `target_jabatan.eq."${userJabatanId}",${orQuery}`;
-}
+      let orQuery = `target_jabatan.eq."${userJabatanName}",target_jabatan.eq."Semua Jabatan"`;
+      if (userJabatanId) {
+        orQuery = `target_jabatan.eq."${userJabatanId}",${orQuery}`;
+      }
 
       let query = supabase
         .from('document_masters')
@@ -409,6 +408,30 @@ if (userJabatanId) {
     return matchesSearch && matchesStatus;
   });
 
+  // --- MULAI: PENGURUTAN KHUSUS CETAK PDF ---
+  // Kode ini akan mengurutkan baris tabel PDF berdasarkan array KATEGORI_OPTIONS
+  const sortedPrintSubmissions = [...submissions].sort((a, b) => {
+    const docA = documents.find(d => d.id === a.document_master_id);
+    const docB = documents.find(d => d.id === b.document_master_id);
+    
+    // Cari index/urutan berdasarkan array KATEGORI_OPTIONS
+    const indexA = KATEGORI_OPTIONS.indexOf(docA?.kategori || '');
+    const indexB = KATEGORI_OPTIONS.indexOf(docB?.kategori || '');
+    
+    const weightA = indexA === -1 ? 999 : indexA;
+    const weightB = indexB === -1 ? 999 : indexB;
+    
+    // Jika kategorinya sama, urutkan berdasarkan abjad nama dokumen
+    if (weightA === weightB) {
+       const namaA = docA?.nama_dokumen || '';
+       const namaB = docB?.nama_dokumen || '';
+       return namaA.localeCompare(namaB);
+    }
+    
+    return weightA - weightB;
+  });
+  // --- SELESAI ---
+
   return (
     <>
       {/* Formal Print Template (Hidden on Web) */}
@@ -457,23 +480,24 @@ if (userJabatanId) {
                 <th className="border border-black px-3 py-2 text-center w-28">Status</th>
               </tr>
             </thead>
+            {/* --- MENERAPKAN PENGURUTAN KE DALAM TABEL --- */}
             <tbody>
-              {submissions.length === 0 ? (
+              {sortedPrintSubmissions.length === 0 ? (
                 <tr>
                   <td colSpan={4} className="border border-black px-3 py-6 text-center italic">Belum ada dokumen yang diserahkan.</td>
                 </tr>
               ) : (
-                submissions.map((sub, i) => {
+                sortedPrintSubmissions.map((sub, i) => {
                   const docMaster = documents.find(d => d.id === sub.document_master_id);
                   return (
                     <tr key={sub.id}>
                       <td className="border border-black px-3 py-2 text-center">{i + 1}</td>
                       <td className="border border-black px-3 py-2">{docMaster?.kategori || '-'}</td>
                       <td className="border border-black px-3 py-2">
-  {/* Prioritaskan judul_kustom, jika kosong baru gunakan nama master dokumen */}
-  <strong>{sub.judul_kustom ? sub.judul_kustom : (docMaster?.nama_dokumen || 'Dokumen E-Kinerja')}</strong>
-  <div className="text-xs mt-1 break-all text-blue-600 underline">{sub.url_gdrive}</div>
-</td>
+                        {/* Prioritaskan judul_kustom, jika kosong baru gunakan nama master dokumen */}
+                        <strong>{sub.judul_kustom ? sub.judul_kustom : (docMaster?.nama_dokumen || 'Dokumen E-Kinerja')}</strong>
+                        <div className="text-xs mt-1 break-all text-blue-600 underline">{sub.url_gdrive}</div>
+                      </td>
                       <td className="border border-black px-3 py-2 text-center uppercase text-xs font-bold">
                         {sub.status_validasi === 'approved' ? 'Disetujui' : sub.status_validasi === 'rejected' ? 'Ditolak' : 'Pending'}
                       </td>
